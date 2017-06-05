@@ -9,6 +9,7 @@
 
 #include "qtframebuffer.h"
 #include "qmlbridge.h"
+#include "AndroidWrapper.h"
 
 int main(int argc, char **argv)
 {
@@ -37,6 +38,8 @@ int main(int argc, char **argv)
     qmlRegisterSingletonType<QMLBridge>("Firebird.Emu", 1, 0, "Emu", qmlBridgeFactory);
     // Register QtFramebuffer for QML display
     qmlRegisterType<QMLFramebuffer>("Firebird.Emu", 1, 0, "EmuScreen");
+    // Register AndroidWrapper for Android file chooser
+    qmlRegisterType<AndroidWrapper>("Firebird.AndroidWrapper", 1, 0, "AndroidWrapper");
 
     #ifndef MOBILE_UI
         MainWindow mw;

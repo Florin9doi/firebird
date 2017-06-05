@@ -3,6 +3,7 @@ import QtQuick.Controls 1.0
 import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.0
 import Firebird.Emu 1.0
+import Firebird.AndroidWrapper 1.0
 
 RowLayout {
     property string filePath: ""
@@ -10,6 +11,10 @@ RowLayout {
 
     // This should normally happen automatically...
     onFilePathChanged: dialog.folder = Emu.dir(filePath)
+
+    AndroidWrapper {
+       id: androidWrapper
+    }
 
     FileDialog {
         id: dialog
@@ -34,6 +39,14 @@ RowLayout {
         id: selectButton
         text: qsTr("Select")
 
-        onClicked: dialog.visible = true
+        onClicked: {
+//            dialog.visible = true
+//            dialog.visible = androidWrapper.getAndroidSdk() >= 21 ? false : true
+            if (Qt.platform.os === "android" && androidWrapper.getAndroidSdk() >= 21) {
+                androidWrapper.openFile()
+            } else {
+                dialog.visible = true
+            }
+        }
     }
 }
