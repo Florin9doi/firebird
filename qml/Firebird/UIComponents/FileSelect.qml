@@ -14,6 +14,10 @@ RowLayout {
 
     AndroidWrapper {
        id: androidWrapper
+       onFilePicked: {
+           filePath = fileUrl
+           emu.toastMessage(fileUrl)
+       }
     }
 
     FileDialog {
@@ -40,8 +44,6 @@ RowLayout {
         text: qsTr("Select")
 
         onClicked: {
-//            dialog.visible = true
-//            dialog.visible = androidWrapper.getAndroidSdk() >= 21 ? false : true
             if (Qt.platform.os === "android" && androidWrapper.getAndroidSdk() >= 21) {
                 androidWrapper.openFile()
             } else {

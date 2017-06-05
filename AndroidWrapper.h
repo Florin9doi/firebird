@@ -5,6 +5,7 @@
 #include <QAndroidActivityResultReceiver>
 #include <QAndroidJniObject>
 #include <QObject>
+#include <android/log.h>
 
 class AndroidWrapper : public QObject, public QAndroidActivityResultReceiver {
     Q_OBJECT
@@ -13,7 +14,11 @@ public:
     void handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data);
     Q_INVOKABLE int getAndroidSdk();
     Q_INVOKABLE void openFile();
-//    void Java_org_firebird_emu_MainActivity_receivedFile();
+
+signals:
+    void filePicked(QString fileUrl);
 };
+
+static int SDCARD_DOCUMENT_REQUEST = 2;
 
 #endif // WRAPPER_H

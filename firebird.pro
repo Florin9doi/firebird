@@ -288,7 +288,6 @@ DISTFILES += \
     core/firebird-send \
     android/AndroidManifest.xml \
     android/res/values/libs.xml \
-    android/build.gradle \
-    android/src/org/firebird/emu/MainActivity.java
+    android/build.gradle
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
