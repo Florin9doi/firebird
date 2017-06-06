@@ -403,11 +403,15 @@ size_t flash_partition_offset(Partition p, struct nand_metrics *nand_metrics, ui
     return (*(uint32_t*)(nand_data + parttable_cx[p-1]))/0x800 * 0x840;
 }
 
+#include <android/log.h>
+#define TAG "org.firebird.emu"
+
 bool flash_open(const char *filename) {
     bool large = false;
     if(flash_file)
         fclose(flash_file);
 
+    __android_log_print(ANDROID_LOG_WARN, TAG, "flash_file = %s", filename);
     flash_file = fopen_utf8(filename, "r+b");
 
     if (!flash_file) {
