@@ -105,6 +105,17 @@ void *os_alloc_executable(size_t size)
     return ptr;
 }
 
+void *os_map_cow_fd(const int fd, size_t size)
+{
+    if(fd == -1)
+        return NULL;
+
+    void *ret = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+
+    return ret == MAP_FAILED ? NULL : ret;
+}
+
+
 void *os_map_cow(const char *filename, size_t size)
 {
     int fd = open(filename, O_RDONLY);

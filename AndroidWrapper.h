@@ -20,5 +20,6 @@ signals:
 };
 
 static int SDCARD_DOCUMENT_REQUEST = 2;
+int android_get_fd_for_uri(const char *path, const char *mode);
 
 #endif // WRAPPER_H

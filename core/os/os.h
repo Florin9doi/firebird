@@ -23,6 +23,7 @@ void *os_sparse_commit(void *page, size_t size);
 void os_sparse_decommit(void *page, size_t size);
 void *os_alloc_executable(size_t size);
 
+void *os_map_cow_fd(const int fd, size_t size);
 void *os_map_cow(const char *filename, size_t size);
 void os_unmap_cow(void *addr, size_t size);
 

@@ -157,6 +157,10 @@ struct gui_busy_raii {
     ~gui_busy_raii() { gui_set_busy(false); }
 };
 
+#include "AndroidWrapper.h"
+#include <android/log.h>
+#define TAG "org.firebird.emu"
+
 bool emu_start(unsigned int port_gdb, unsigned int port_rdbg, const char *snapshot_file)
 {
     gui_busy_raii gui_busy;
@@ -164,7 +168,7 @@ bool emu_start(unsigned int port_gdb, unsigned int port_rdbg, const char *snapsh
     if(debug_on_start)
         cpu_events |= EVENT_DEBUG_STEP;
 
-    if(snapshot_file)
+    if(snapshot_file && 0)
     {
         // Open snapshot
         size_t snapshot_size = gzip_filesize(snapshot_file);
@@ -239,8 +243,15 @@ bool emu_start(unsigned int port_gdb, unsigned int port_rdbg, const char *snapsh
         RAM_FLAGS(&rom[i]) = RF_READ_ONLY;
 
     /* Load the ROM */
+#ifdef __ANDROID__
+    int fd = android_get_fd_for_uri(path_boot1.c_str(), "r");
+    __android_log_print(ANDROID_LOG_WARN, TAG, "path_boot1=%s; fd=%d", path_boot1.c_str(), fd);
+    FILE *f = fdopen(fd, "rb");
+#else
     FILE *f = fopen_utf8(path_boot1.c_str(), "rb");
+#endif
     if (!f) {
+        __android_log_print(ANDROID_LOG_WARN, TAG, "path_boot1=%s; fd= error", path_boot1.c_str());
         gui_perror(path_boot1.c_str());
         emu_cleanup();
         return false;

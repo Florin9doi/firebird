@@ -11,6 +11,10 @@
 #include "cpu.h"
 #include "os/os.h"
 
+#include "AndroidWrapper.h"
+#include <android/log.h>
+#define TAG "org.firebird.emu"
+
 nand_state nand;
 static uint8_t *nand_data = NULL;
 
@@ -26,7 +30,13 @@ bool nand_initialize(bool large, const char *filename) {
     memcpy(&nand.metrics, &chips[large], sizeof(nand_metrics));
     nand.state = 0xFF;
 
+#ifdef __ANDROID__
+    int fd = android_get_fd_for_uri(filename, "r");
+    __android_log_print(ANDROID_LOG_WARN, TAG, "nand_initialize=%s; fd=%d", filename, fd);
+    nand_data = (uint8_t*) os_map_cow_fd(fd, large ? 132*1024*1024 : 33*1024*1024);
+#else
     nand_data = (uint8_t*) os_map_cow(filename, large ? 132*1024*1024 : 33*1024*1024);
+#endif
     if(!nand_data)
         nand_deinitialize();
 
@@ -403,30 +413,34 @@ size_t flash_partition_offset(Partition p, struct nand_metrics *nand_metrics, ui
     return (*(uint32_t*)(nand_data + parttable_cx[p-1]))/0x800 * 0x840;
 }
 
-#include <android/log.h>
-#define TAG "org.firebird.emu"
-
 bool flash_open(const char *filename) {
     bool large = false;
     if(flash_file)
         fclose(flash_file);
 
-    __android_log_print(ANDROID_LOG_WARN, TAG, "flash_file = %s", filename);
+#ifdef __ANDROID__
+    int fd = android_get_fd_for_uri(filename, "rw");
+    __android_log_print(ANDROID_LOG_WARN, TAG, "flash_file=%s; fd=%d", filename, fd);
+    flash_file = fdopen(fd, "r+b");
+#else
     flash_file = fopen_utf8(filename, "r+b");
+#endif
 
     if (!flash_file) {
         gui_perror(filename);
+        __android_log_print(ANDROID_LOG_WARN, TAG, "flash_file1");
         return false;
     }
     fseek(flash_file, 0, SEEK_END);
     uint32_t size = ftell(flash_file);
 
-    if (size == 33*1024*1024)
+    if (size == 33*1024*1024 || size == 34611200)
         large = false;
     else if (size == 132*1024*1024)
         large = true;
     else {
         emuprintf("%s not a flash image (wrong size)\n", filename);
+        __android_log_print(ANDROID_LOG_WARN, TAG, "flash_file2 ; size=%d", size);
         return false;
     }
 
@@ -435,6 +449,7 @@ bool flash_open(const char *filename) {
         fclose(flash_file);
         flash_file = NULL;
         emuprintf("Could not read flash image from %s\n", filename);
+        __android_log_print(ANDROID_LOG_WARN, TAG, "flash_file3");
         return false;
     }
 

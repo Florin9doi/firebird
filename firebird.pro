@@ -16,8 +16,10 @@ ios|android: SUPPORT_LINUX = false
 TRANSLATIONS += i18n/de_DE.ts i18n/fr_FR.ts
 
 QT += core gui widgets quickwidgets
-
-android: QT += androidextras
+android: {
+    QT += androidextras
+#    DEFINES += Q_OS_ANDROID
+}
 
 CONFIG += c++11
 
